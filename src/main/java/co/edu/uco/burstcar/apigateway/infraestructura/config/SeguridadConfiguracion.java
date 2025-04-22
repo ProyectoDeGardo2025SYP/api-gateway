@@ -12,6 +12,11 @@ import org.springframework.security.oauth2.server.resource.authentication.Reacti
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -24,7 +29,7 @@ import java.security.interfaces.RSAPublicKey;
 
 
 @Configuration
-public class SeguridadConfiguracion {
+public class SeguridadConfiguracion{
 
     @Value("${token.llave-publica}")
     private String rutaLlavePublica;
@@ -32,9 +37,12 @@ public class SeguridadConfiguracion {
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http
+                .cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/publico/**").permitAll()
+                        .pathMatchers("/prestador/sesion").permitAll()
+                        .pathMatchers("/solicitante/sesion").permitAll()
                         .pathMatchers("/prestador/*/calificacion").hasRole("solicitante")
                         .pathMatchers("/prestador/ubicacion/nuevo").hasRole("prestador")
                         .pathMatchers("/prestador/nuevo").hasRole("prestador")
@@ -43,6 +51,7 @@ public class SeguridadConfiguracion {
                         .pathMatchers("/servicio/destino/nuevo").hasRole("solicitante")
                         .pathMatchers("/servicio/nuevo").hasRole("solicitante")
                         .pathMatchers("/servicio/todos").permitAll()
+                        .pathMatchers("paquete/servicio/*/informacion").permitAll()
                         .pathMatchers("/servicio/oferta/nueva").hasRole("prestador")
                         .pathMatchers("/servicio/oferta/todos").permitAll()
                         .pathMatchers("/servicio/*/cambio").hasRole("solicitante")
@@ -85,5 +94,18 @@ public class SeguridadConfiguracion {
         X509Certificate generacionDeCertificado = (X509Certificate) certificado.generateCertificate(resource.getInputStream());
         PublicKey publicKey = generacionDeCertificado.getPublicKey();
         return NimbusReactiveJwtDecoder.withPublicKey((RSAPublicKey) publicKey).build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:8100"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true); //
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
