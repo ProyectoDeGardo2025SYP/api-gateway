@@ -54,7 +54,7 @@ public class SeguridadConfiguracion{
                         .pathMatchers("paquete/servicio/*/informacion").permitAll()
                         .pathMatchers("/servicio/oferta/nueva").hasRole("prestador")
                         .pathMatchers("/servicio/oferta/todos/**").permitAll()
-                        .pathMatchers("/servicio/*/cambio").hasRole("solicitante")
+                        .pathMatchers("/servicio/*/cambio").permitAll()
                         .pathMatchers("/servicio/*/estado").permitAll()
                         .pathMatchers("/servicio/*/cambio/informacion").hasRole("solicitante")
                         .pathMatchers("/servicio/oferta/*/cambio/estado").hasRole("solicitante")
