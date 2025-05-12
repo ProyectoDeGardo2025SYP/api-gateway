@@ -68,7 +68,7 @@ public class SeguridadConfiguracion{
                         .pathMatchers("/paquete/peso/*/cambio").hasRole("solicitante")
                         .pathMatchers("/paquete/*/cambio").hasRole("solicitante")
                         .pathMatchers("paquete/peso/*/informacion").permitAll()
-                        //.pathMatchers("/prestador/**").hasRole("prestador")
+                        .pathMatchers("/prestador/*").permitAll()
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
